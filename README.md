@@ -1,5 +1,5 @@
 # Prj-Parallax
-38期プロジェクトの作業リポジトリ
+38期プロジェクトの作業リポジトリ（共有リポジトリです）
 
 **notice** This is public repos but we'll use this as private.
 
@@ -14,6 +14,3 @@
 - developとmasterは一旦はいじらない
 - 立ち上げ期が終わったらtestブランチの内容をmasterに（手動）マージ
 
-
-
-_testブランチでREDME変更
