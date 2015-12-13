@@ -1,5 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+//openCV.openCVSharp
+//using OpenCvSharp.CPlusPlus;
+using OpenCvSharp;
+
+
 
 // カメラにアタッチして使用
 [RequireComponent(typeof(Camera))]
@@ -23,8 +28,16 @@ public class WindowCamera : MonoBehaviour {
 
 	// 頭の座標（"頭を原点として"画面の中心へのベクトル）
 	private Vector3 headPos;
-	
-	void Start () {
+
+    //@ビデオファイルやカメラからキャプチャを行う
+    OpenCvSharp.CPlusPlus.VideoCapture video;
+    public int VideoIndex = 0;
+    //顏検出のためのクラス
+    OpenCvSharp.CPlusPlus.CascadeClassifier cascade;
+    GameObject faceObj;
+
+
+    void Start () {
 		// 自分自身のカメラコンポーネントを入れておく
 		thisCamera = GetComponent<Camera>();
 
@@ -32,10 +45,21 @@ public class WindowCamera : MonoBehaviour {
 
 
 		window.Itit(WINDOW_HEIGHT, WINDOW_HEIGHT*thisCamera.aspect, headPos);
-	}
+
+        //@カメラからのストリーミングを開始
+        video = new OpenCvSharp.CPlusPlus.VideoCapture(VideoIndex);
+        //@ビデオストリーム中のフレームの幅と高さ
+        video.Set(CaptureProperty.FrameWidth, WINDOW_HEIGHT * thisCamera.aspect);
+        video.Set(CaptureProperty.FrameHeight, WINDOW_HEIGHT);
+        //@顔検出器の作成 (.xmlファイルで、他にも顏のパーツや動物の検出器もあるみたい
+        cascade = new OpenCvSharp.CPlusPlus.CascadeClassifier(Application.dataPath + @"/haarcascade_frontalface_alt.xml");
+        faceObj = GameObject.Find("Face_obj");
 
 
-	void Update () {
+    }
+
+
+    void Update () {
 
 		window.width = WINDOW_HEIGHT*thisCamera.aspect;
 
@@ -110,16 +134,73 @@ public class WindowCamera : MonoBehaviour {
 	// 中身は仮。外部からの入力を持ってくる予定
 	// ===================================
 	private Vector3 getHeadPosition(){
+        /*
 		float x = 2.0F * Input.GetAxis("Mouse X");
 		float y = 2.0F * Input.GetAxis("Mouse Y");
 		float z = 20.0F * Input.GetAxis("Mouse ScrollWheel");
 		
 		return headPos + new Vector3 (x, y, z);
+        */
+
+        using (OpenCvSharp.CPlusPlus.Mat image = new OpenCvSharp.CPlusPlus.Mat())
+        {
+            // ストリーミングしている画像を読み込む
+            video.Read(image);
+
+            // 顔を検出する
+            var faces = cascade.DetectMultiScale(image);
+            //　検出出来たら処理
+            if (faces.Length > 0)
+            {
+                var face = faces[0];
+                // 中心の座標を計算する
+                var x = face.TopLeft.X + (face.Size.Width / 2);
+                var y = face.TopLeft.Y + (face.Size.Height / 2);
+
+                faceObj.transform.localPosition = Vector2ToVector3(new Vector2(x,y));
+                float tes = faceObj.transform.position.x;
+                float tes2 = faceObj.transform.position.y;
+                print(string.Format("({0},{1})",tes,tes2));
+
+                return new Vector3(tes,tes2,0.0F);
+
+            }
+        }
+
+       return new Vector3();
+//       return headPos + face_pos;
 	}
-	
+
+
+
+    private Vector3 Vector2ToVector3(Vector2 vector2)
+    {
+        //変換用のカメラがない時は例外エラーを出す
+        if (thisCamera == null)
+        {
+            throw new System.Exception("");
+        }
+
+        // スクリーンサイズで調整(WebCamera->Unity)
+        vector2.x = vector2.x * Screen.width / WINDOW_HEIGHT * thisCamera.aspect;
+        vector2.y = vector2.y * Screen.height / WINDOW_HEIGHT;
+
+
+        var vector3 = thisCamera.ScreenToWorldPoint(vector2);
+        //var vector3 = new Vector3(vector2.x,vector2.y,0.0F);
+       // print(string.Format("{0}", vector3));
+
+
+        return vector3;
+ //       return new Vector3();
+    }
+
+
+
+
 #if UNITY_EDITOR
-	// 開発用　シーンビューで視野を描画する
-	void OnDrawGizmos(){
+        // 開発用　シーンビューで視野を描画する
+        void OnDrawGizmos(){
 		// 仮想窓の4隅
 		Vector3 to1 = new Vector3(window.left, window.bottom, window.z);
 		Vector3 to2 = new Vector3(window.left, window.top, window.z);
