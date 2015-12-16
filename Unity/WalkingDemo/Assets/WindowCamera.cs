@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+
+using OpenCvSharp.CPlusPlus;
+using OpenCvSharp;
+
 
 // カメラにアタッチして使用
 [RequireComponent(typeof(Camera))]
-[ExecuteInEditMode]
-public class WindowCamera : MonoBehaviour {
-	
+//[ExecuteInEditMode]
+public class WindowCamera : MonoBehaviour
+{
 	[SerializeField, TooltipAttribute("仮想窓の高さ（横幅はaspectに従う）")]
 	private float WINDOW_HEIGHT = 20.0F;
 
@@ -23,8 +28,12 @@ public class WindowCamera : MonoBehaviour {
 
 	// 頭の座標（"頭を原点として"画面の中心へのベクトル）
 	private Vector3 headPos;
-	
-	void Start () {
+
+
+
+    private CameraDetector cameraDetector = null;
+
+    void Start () {
 		// 自分自身のカメラコンポーネントを入れておく
 		thisCamera = GetComponent<Camera>();
 
@@ -32,6 +41,10 @@ public class WindowCamera : MonoBehaviour {
 
 
 		window.Itit(WINDOW_HEIGHT, WINDOW_HEIGHT*thisCamera.aspect, headPos);
+
+
+        cameraDetector = new CameraDetector();
+
 	}
 
 
@@ -45,8 +58,14 @@ public class WindowCamera : MonoBehaviour {
 		Vector3 diff = newPos - headPos;
 		headPos = newPos;
 
-		// カメラが移動
-		transform.Translate(diff);
+        // 顔検出器 @todo ちゃんとする
+        cameraDetector.getFacePos();
+
+
+
+
+        // カメラが移動
+        transform.Translate(diff);
 
 		// 仮想窓は動かない→カメラからは逆向きに移動して見える
 		window.Translate(-1*diff);
@@ -56,10 +75,21 @@ public class WindowCamera : MonoBehaviour {
 		Matrix4x4 m = ProjectionToVirtialWindow(window, thisCamera.nearClipPlane, thisCamera.farClipPlane);
 		thisCamera.projectionMatrix = m;
 	}
-	
 
-	// 仮想窓(window)とクリップ面の情報(near, far)から、仮想窓から映る範囲を対象にした射影変換行列を計算する
-	private Matrix4x4 ProjectionToVirtialWindow(VirtualWindow window, float near, float far){
+    void OnApplicationQuit()
+    {
+        if (cameraDetector != null)
+        {
+            cameraDetector.Dispose();
+            cameraDetector = null;
+        }
+    }
+
+
+
+
+    // 仮想窓(window)とクリップ面の情報(near, far)から、仮想窓から映る範囲を対象にした射影変換行列を計算する
+    private Matrix4x4 ProjectionToVirtialWindow(VirtualWindow window, float near, float far){
 		// 「(カメラの)ローカル座標」と「カメラ座標」ではz軸が±逆になるのでwindow.zに-が付いている
 		return ProjectionToOffCenter(window.left, window.right, window.bottom, window.top, -window.z, near, far);
 	}
@@ -75,8 +105,9 @@ public class WindowCamera : MonoBehaviour {
 	}
 
 	// カメラの描画範囲となる仮想窓
-	private class VirtualWindow{
-		private Rect  _rect = new Rect();
+	private class VirtualWindow
+    {
+		private UnityEngine.Rect  _rect = new UnityEngine.Rect();
 		private float _z = 0;
 
 		//座標は読取専用
@@ -104,6 +135,90 @@ public class WindowCamera : MonoBehaviour {
 			this._z += diff.z;
 		}
 	}
+
+
+
+    // 顔座標検出器
+    private class CameraDetector: IDisposable
+    {
+        //スクリーンサイズ
+        public int Width = 640;
+        public int Height = 480;
+
+        //openCVの機能：
+        //ビデオファイルやカメラからキャプチャを行う
+        VideoCapture video;
+        public int VideoIndex = 0;
+        //顏検出のためのクラス
+        CascadeClassifier cascade;
+
+
+
+
+        public CameraDetector(){
+            Debug.Log("Im constractor!");
+            // ビデオの設定
+            //カメラからのストリーミングを開始
+            video = new VideoCapture(VideoIndex);
+            //ビデオストリーム中のフレームの幅と高さ
+            video.Set(CaptureProperty.FrameWidth, Width);
+            video.Set(CaptureProperty.FrameHeight, Height);
+            //print(string.Format("{0},{1}", Width, Height));
+
+            // 顔検出器の作成 (.xmlファイルで、他にも顏のパーツや動物の検出器もあるみたい
+            cascade = new CascadeClassifier(Application.dataPath + @"/haarcascade_frontalface_alt.xml");
+        }
+
+        public Vector3 getFacePos(){
+
+            if(!video.IsOpened())
+            {
+                Debug.Log("Camera Not found");
+                return new Vector3(0, 0, 0);
+            }
+
+
+            //usingでインスタンス化されたオブジェクトはusing{}を抜けると解放される
+            using (Mat image = new Mat())
+            {
+                // ストリーミングしている画像を読み込む
+                video.Read(image);
+
+                // 顔を検出する
+                var faces = cascade.DetectMultiScale(image);
+                //　検出出来たら処理
+                if (faces.Length > 0)
+                {
+                    var face = faces[0];
+
+                    // 中心の座標を計算する
+                    var x = face.TopLeft.X + (face.Size.Width / 2);
+                    var y = face.TopLeft.Y + (face.Size.Height / 2);
+                    //print(string.Format("({0},{1})",x,y));
+
+                    return new Vector3(x, y, 0);
+
+                }
+                else
+                {
+                    Debug.Log("face Not found");
+                    return new Vector3(0, 0, 0);
+                }
+            }
+        }
+
+        public void Dispose(){
+            Debug.Log("Im dispose!");
+            if (video != null)
+            {
+                video.Dispose();
+                video = null;
+            }
+        }
+    }
+
+
+
 
 
 	// ===================================
