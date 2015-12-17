@@ -13,7 +13,7 @@ public class SimpleMove : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float z = 0.5f*Input.GetAxis("Vertical");
+		float z = 1.0f*Input.GetAxis("Vertical");
 
         if (z != 0){
             transform.Translate(0, 0, z);

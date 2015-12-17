@@ -37,7 +37,7 @@ public class WindowCamera : MonoBehaviour
 		// 自分自身のカメラコンポーネントを入れておく
 		thisCamera = GetComponent<Camera>();
 
-		headPos = WINDOW_INIT_POS/UNIT_RATIO;
+		headPos = WINDOW_INIT_POS;
 
 
 		window.Itit(WINDOW_HEIGHT, WINDOW_HEIGHT*thisCamera.aspect, headPos);
@@ -53,27 +53,70 @@ public class WindowCamera : MonoBehaviour
 		window.width = WINDOW_HEIGHT*thisCamera.aspect;
 
 
-		// ToDO顔の座標を取るように改良
-		Vector3 newPos = getHeadPosition() * UNIT_RATIO;
-		Vector3 diff = newPos - headPos;
-		headPos = newPos;
-
-        // 顔検出器 @todo ちゃんとする
-        cameraDetector.getFacePos();
+        // ToDO顔の座標を取るように改良
+        //Vector3 newPos = getHeadPosition() * UNIT_RATIO;
 
 
+        Vector3 diff = new Vector3(0, 0, 0);
 
 
-        // カメラが移動
-        transform.Translate(diff);
+        try
+        {
+            Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;
+            diff = newPos - headPos;
 
-		// 仮想窓は動かない→カメラからは逆向きに移動して見える
-		window.Translate(-1*diff);
+
+            if (headPos != WINDOW_INIT_POS && diff.magnitude > 10.0f)
+            {
+                Debug.Log("ココに居るよ！:" + diff.magnitude);
+                return;
+
+            }
+
+            headPos = newPos;
 
 
-		//仮想窓での描画範囲を計算
-		Matrix4x4 m = ProjectionToVirtialWindow(window, thisCamera.nearClipPlane, thisCamera.farClipPlane);
-		thisCamera.projectionMatrix = m;
+
+
+            // カメラが移動
+            transform.Translate(diff);
+
+            // 仮想窓は動かない→カメラからは逆向きに移動して見える
+            window.Translate(-1 * diff);
+
+
+            //仮想窓での描画範囲を計算
+            Matrix4x4 m = ProjectionToVirtialWindow(window, thisCamera.nearClipPlane, thisCamera.farClipPlane);
+            thisCamera.projectionMatrix = m;
+
+
+        }
+        catch
+        {
+
+
+
+
+
+
+            Debug.Log("顔見つかんない系");
+        }
+
+
+       // Vector3 newPos = cameraDetector.getFacePos();
+
+ 
+
+  //      // カメラが移動
+  //      transform.Translate(diff);
+
+		//// 仮想窓は動かない→カメラからは逆向きに移動して見える
+		//window.Translate(-1*diff);
+
+
+		////仮想窓での描画範囲を計算
+		//Matrix4x4 m = ProjectionToVirtialWindow(window, thisCamera.nearClipPlane, thisCamera.farClipPlane);
+		//thisCamera.projectionMatrix = m;
 	}
 
     void OnApplicationQuit()
@@ -153,6 +196,10 @@ public class WindowCamera : MonoBehaviour
         CascadeClassifier cascade;
 
 
+        //カメラからの情報を2Dデータとして保管する変数
+        private Texture2D texture;
+
+
 
 
         public CameraDetector(){
@@ -167,15 +214,23 @@ public class WindowCamera : MonoBehaviour
 
             // 顔検出器の作成 (.xmlファイルで、他にも顏のパーツや動物の検出器もあるみたい
             cascade = new CascadeClassifier(Application.dataPath + @"/haarcascade_frontalface_alt.xml");
+
+
+            // テクスチャの作成(何処のマテリアルに画像を出力するか
+            texture = new Texture2D(Width, Height, TextureFormat.RGB24, false);
+            GameObject.Find("Plane").GetComponent<Renderer>().material.mainTexture = texture;
+
         }
 
+
+
+        // 顔座標を取る（コレ、取れなかったら例外出すけど、それで良いのか…）
         public Vector3 getFacePos(){
 
-            if(!video.IsOpened())
-            {
-                Debug.Log("Camera Not found");
-                return new Vector3(0, 0, 0);
-            }
+            if(!video.IsOpened()) {throw new Exception(@"Camera Not found");}
+
+
+            Vector3 retArr = new Vector3();
 
 
             //usingでインスタンス化されたオブジェクトはusing{}を抜けると解放される
@@ -186,24 +241,47 @@ public class WindowCamera : MonoBehaviour
 
                 // 顔を検出する
                 var faces = cascade.DetectMultiScale(image);
+
                 //　検出出来たら処理
                 if (faces.Length > 0)
                 {
                     var face = faces[0];
 
+                    // 顔の矩形を描画する
+                    image.Rectangle(face, new Scalar(255, 0, 0), 2);
+
+
                     // 中心の座標を計算する
-                    var x = face.TopLeft.X + (face.Size.Width / 2);
-                    var y = face.TopLeft.Y + (face.Size.Height / 2);
-                    //print(string.Format("({0},{1})",x,y));
+                    var x = face.TopLeft.X + (face.Size.Width / 2)   - Width/2;
+                    var y = face.TopLeft.Y + (face.Size.Height / 2)  - Height/2;
+                    print(string.Format("({0},{1})", x, y));
 
-                    return new Vector3(x, y, 0);
+                    retArr = new Vector3(-x,-y,0);
+
+
+
+                    using (var cvtImage = image.CvtColor(ColorConversion.BgrToRgb))
+                    {
+                        texture.LoadRawTextureData(cvtImage.ImEncode(".bmp"));
+                        //描画：変更点のあったピクセルの更新
+                        texture.Apply();
+                    }
 
                 }
-                else
-                {
-                    Debug.Log("face Not found");
-                    return new Vector3(0, 0, 0);
+                else{
+
+                    using (var cvtImage = image.CvtColor(ColorConversion.BgrToRgb))
+                    {
+                        texture.LoadRawTextureData(cvtImage.ImEncode(".bmp"));
+                        //描画：変更点のあったピクセルの更新
+                        texture.Apply();
+                    }
+
+
+                    throw new Exception(@"Face Not found");
                 }
+
+                return retArr;
             }
         }
 

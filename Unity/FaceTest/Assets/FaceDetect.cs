@@ -69,10 +69,11 @@ public class FaceDetect : MonoBehaviour
 			if (faces.Length > 0)
 			{
 				var face = faces[0];
-				
-				// 顔の矩形を描画する
-				image.Rectangle(face, new Scalar(255, 0, 0), 2);
-				
+
+                // 顔の矩形を描画する
+
+               image.Rectangle(face, new Scalar(255, 0, 0), 2);
+
 				// 中心の座標を計算する
 				var x = face.TopLeft.X + (face.Size.Width / 2);
 				var y = face.TopLeft.Y + (face.Size.Height / 2);
