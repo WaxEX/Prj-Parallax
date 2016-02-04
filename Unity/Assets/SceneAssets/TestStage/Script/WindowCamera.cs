@@ -50,6 +50,10 @@ public class WindowCamera : MonoBehaviour
 
     void Update()
     {
+		//DEBUG カメラを固定
+		//return;
+
+
         // 実行中にアス比が変わるかもなので、更新する
         window.width = WINDOW_HEIGHT * thisCamera.aspect;
 
@@ -163,7 +167,7 @@ public class WindowCamera : MonoBehaviour
         CascadeClassifier cascade;
 
         //カメラからの情報を2Dデータとして保管する変数
-        private Texture2D texture;
+        //private Texture2D texture;
 
         public CameraDetector(Vector3 defaultPos)
         {
@@ -203,11 +207,11 @@ public class WindowCamera : MonoBehaviour
 
                 // 検出出来なかった → 描画だけして、例外投げておしまい
                 if (faces.Length <= 0){
-                    using (var cvtImage = image.CvtColor(ColorConversion.BgrToRgb))
-                    {
-                        texture.LoadRawTextureData(cvtImage.ImEncode(".bmp"));
-                        texture.Apply();
-                    }
+                //   using (var cvtImage = image.CvtColor(ColorConversion.BgrToRgb))
+                //   {
+                //        texture.LoadRawTextureData(cvtImage.ImEncode(".bmp"));
+                //       texture.Apply();
+                //    }
                     throw new Exception(@"Face Not found");
                 }
 
