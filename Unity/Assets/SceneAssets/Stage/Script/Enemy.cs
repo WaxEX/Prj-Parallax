@@ -3,6 +3,9 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
+    // 敵の全体数を管理しているオブジェクト
+    private GameObject enemyManager;
+    EnemyManager eManager;
     //変数宣言
     Vector3 position;
     float speed;
@@ -12,6 +15,11 @@ public class Enemy : MonoBehaviour
     {
         //変数初期化
         speed = 0.1f;
+
+        //敵の全体数を管理しているオブジェクトを探す。
+        enemyManager = GameObject.Find("EnemyManager");
+        //敵の全体数を管理しているオブジェクトからスクリプトをゲットする
+        eManager = enemyManager.GetComponent<EnemyManager>();
     }
 
     // Update is called once per frame
@@ -21,15 +29,16 @@ public class Enemy : MonoBehaviour
         transform.position += new Vector3(0, 0, -speed);
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        Destroy(gameObject);
-    }
+    //void OnCollisionEnter(Collision collision)
+    //{
+    //    Destroy(gameObject);
+    //}
 
     // Enemy delete
     // 他のスクリプトから呼ばれる予定なのでpublic
     public void EnemyDelete()
     {
+        eManager.enemyDecrease();
         Destroy(gameObject);
     }
 

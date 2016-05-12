@@ -57,7 +57,7 @@ public class WindowCamera : MonoBehaviour
         // 実行中にアス比が変わるかもなので、更新する
         window.width = WINDOW_HEIGHT * thisCamera.aspect;
 
-        try
+          try
         {
             // 顔座標の取得を試みる→取れないときは例外を投げる
             Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;
