@@ -23,6 +23,7 @@ public class WindowCamera : MonoBehaviour
 
     // 仮想窓　（座標は"カメラを原点とする"ローカル座標系）
     private VirtualWindow window = new VirtualWindow();
+    Matrix4x4 virtualWindowData;
 
     // 頭の座標（"頭を原点として"画面の中心へのベクトル）
     private Vector3 headPos;
@@ -57,10 +58,11 @@ public class WindowCamera : MonoBehaviour
         // 実行中にアス比が変わるかもなので、更新する
         window.width = WINDOW_HEIGHT * thisCamera.aspect;
 
-          try
+        try
         {
             // 顔座標の取得を試みる→取れないときは例外を投げる
-            Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;
+            //Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;//顔認識で動かすよう
+            Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
             Vector3 diff = newPos - headPos;
 
             // 誤検知をスルーするための小細工
@@ -80,11 +82,12 @@ public class WindowCamera : MonoBehaviour
             // 仮想窓は動かない→カメラからは逆向きに移動して見える
             window.Translate(-1 * diff);
 
-            //仮想窓での描画範囲を計算
+            // 仮想窓での描画範囲を計算
             Matrix4x4 m = ProjectionToVirtialWindow(window, thisCamera.nearClipPlane, thisCamera.farClipPlane);
             thisCamera.projectionMatrix = m;
         }
-        catch{
+        catch
+        {
             // 顔が検出できない→スルー
         }
     }
@@ -97,6 +100,7 @@ public class WindowCamera : MonoBehaviour
             cameraDetector = null;
         }
     }
+
 
     // 仮想窓(window)とクリップ面の情報(near, far)から、仮想窓から映る範囲を対象にした射影変換行列を計算する
     private Matrix4x4 ProjectionToVirtialWindow(VirtualWindow window, float near, float far)
@@ -241,6 +245,39 @@ public class WindowCamera : MonoBehaviour
             }
         }
     }
+
+    // ===================================
+    // マウスでぐりぐり動かす用（頭座標の代わり）
+    // ===================================
+    private Vector3 getHeadPosition()
+    {
+        float x = 2.0F * Input.GetAxis("Mouse X");
+        float y = 2.0F * Input.GetAxis("Mouse Y");
+        float z = 20.0F * Input.GetAxis("Mouse ScrollWheel");
+
+        return headPos + new Vector3(x, y, z);
+    }
+
+    // 光線を出すときにプレイヤーが必要とする情報----------------------------------------
+    // 仮想窓Ｘ座標の中心点
+    public float VirtualWindowCenterX()
+    {
+        // xの(virtualWindowの)center座標
+        float difX = Mathf.Abs(window.right - window.left);
+        float centerPosX = window.right - (difX / 2);
+        return centerPosX;
+    }
+    // 仮想窓Y座標の中心点
+    public float VirtualWindowCenterY()
+    {
+        // yの(virtualWindowの)center座標
+        float difY = Mathf.Abs(window.top - window.bottom);
+        float centerPosY = window.top - (difY / 2);
+        return centerPosY;
+    }
+    // 光線を出すときにプレイヤーが必要とする情報----------------------------------------
+
+
 
 
 #if UNITY_EDITOR
