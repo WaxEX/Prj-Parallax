@@ -65,8 +65,8 @@ public class EnemyManager : MonoBehaviour
         float z = Random.Range(BACK_Z, FRONT_Z);
 
         //生成位置を返す。
-        return new Vector3();
-        //return new Vector3(x, y, z);
+        //return new Vector3();
+        return new Vector3(x, y, z);
     }
     // enemyのPosition決定処理----------------------------------------------
 
