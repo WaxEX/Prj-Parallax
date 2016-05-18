@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerRazer : MonoBehaviour {
+public class PlayerLaser : MonoBehaviour {
     // プレイヤーから射出されるレーザ
     public GameObject laserObject;
     // 射程
     public float laserRange = 20;
     // 線の太さ
-    public float laserWidth = 1;
+    public float laserEndWidth = 1;
+    public float laserStartWidth = 0.1f;
     // 銃口
     public Transform muzzle;
     // LineRendererのコンポーネントの参照を入手
@@ -25,7 +26,7 @@ public class PlayerRazer : MonoBehaviour {
         //始点と終点の2つの座標で線を引く
         lineRenderer.SetVertexCount(2);
         //LineRendererの太さ(始点と終点で変更できる)
-        lineRenderer.SetWidth(laserWidth, laserWidth);
+        lineRenderer.SetWidth(laserStartWidth, laserEndWidth);
         ////LineRendererの色(始点は緑、終点は緑)
         //lineRenderer.SetColors(Color.blue, Color.blue);
 
@@ -89,7 +90,7 @@ public class PlayerRazer : MonoBehaviour {
             if (rayHit.collider.gameObject.CompareTag("Enemy"))
             {
                 //Debug.Log(rayHit.collider.gameObject.name);
-                rayHit.collider.gameObject.SendMessage("EnemyDelete");
+                rayHit.collider.gameObject.SendMessage("EnemyDeleteByLaser");
             }
         }
         SetLaser(transform.position, ray.direction * laserRange);

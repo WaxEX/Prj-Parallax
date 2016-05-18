@@ -26,10 +26,14 @@ public class EnemyManager : MonoBehaviour
     // 壁オブジェクト（enemyを生成する範囲の基となる）
     public GameObject Wall;
 
+    // enemyがプレイヤーに撃破された数
+    int deathTotal;
 
     // Use this for initialization-----------------------------------------
     void Start()
     {
+        //enemyがプレイヤーに撃破された数　初期化
+        deathTotal = 0;
         this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
     }
     // Use this for initialization-----------------------------------------
@@ -44,6 +48,10 @@ public class EnemyManager : MonoBehaviour
             this.InstantiateEnemy(CONST_ENEMY_POP_NUM);
             enemyIncrease();
         }
+
+        //現在殺されている数
+        this.KillTotalCount();
+
     }
     // Update is called once per frame-------------------------------------
 
@@ -95,7 +103,7 @@ public class EnemyManager : MonoBehaviour
     // enemyTotalNumberの数値減少
     public void enemyDecrease()
     {
-        if (enemyTotalNumber > 0) { enemyTotalNumber--; }
+        if (enemyTotalNumber > 0) { enemyTotalNumber--;}
     }
     // enemyTotalNumberの数値増加
     public void enemyIncrease()
@@ -103,6 +111,19 @@ public class EnemyManager : MonoBehaviour
         enemyTotalNumber += CONST_ENEMY_POP_NUM;
     }
     // enemyの総数管理------------------------------------------------------
+
+    // enemyがプレイヤーに撃破された数----------------------------------------
+    // 撃破された総数
+    public int KillTotalCount() {
+        Debug.Log("殺されてる数" + deathTotal);
+        return deathTotal;
+    }
+    // 撃破された時にカウントする
+    public int KillCount() {
+        return deathTotal++;
+    }
+    // enemyがプレイヤーに撃破された数----------------------------------------
+
 
 
     // オブジェクトの情報取得------------------------------------------------

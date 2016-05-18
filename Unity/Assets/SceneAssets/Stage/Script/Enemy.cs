@@ -6,6 +6,11 @@ public class Enemy : MonoBehaviour
     // 敵の全体数を管理しているオブジェクト
     private GameObject enemyManager;
     EnemyManager eManager;
+
+    // プレイヤーのライフ管理しているオブジェクト
+    private GameObject playerObj;
+    Player playerScript;
+    
     //変数宣言
     Vector3 position;
     float speed;
@@ -20,6 +25,11 @@ public class Enemy : MonoBehaviour
         enemyManager = GameObject.Find("EnemyManager");
         //敵の全体数を管理しているオブジェクトからスクリプトをゲットする
         eManager = enemyManager.GetComponent<EnemyManager>();
+
+        //プレイヤーのLifeを管理しているオブジェクトを探す。
+        playerObj = GameObject.Find("Player");
+        playerScript = playerObj.GetComponent<Player>();
+
     }
 
     // Update is called once per frame
@@ -35,11 +45,21 @@ public class Enemy : MonoBehaviour
     //}
 
     // Enemy delete
-    // 他のスクリプトから呼ばれる予定なのでpublic
+    // 壁にぶつかった時の死
     public void EnemyDelete()
     {
+        playerScript.PlayerDecrease();
+        this.Death();
+    }
+    // 光線に当たった時の死
+    public void EnemyDeleteByLaser()
+    {
+        eManager.KillCount();
+        this.Death();
+    }
+
+    void Death() {
         eManager.enemyDecrease();
         Destroy(gameObject);
     }
-
 }
