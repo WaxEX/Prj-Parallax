@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -27,14 +28,20 @@ public class EnemyManager : MonoBehaviour
     public GameObject Wall;
 
     // enemyがプレイヤーに撃破された数
-    int deathTotal;
+    private static int deathTotal;
+    // 撃破された数値のテキスト表示
+    public Text killsText;    
 
     // Use this for initialization-----------------------------------------
     void Start()
     {
+        KillsData.Instance.killCount = 0;
         //enemyがプレイヤーに撃破された数　初期化
         deathTotal = 0;
         this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
+
+        //Debug.Log("撃破数にゃ" + KillsData.Instance.killCount);
+
     }
     // Use this for initialization-----------------------------------------
 
@@ -50,7 +57,11 @@ public class EnemyManager : MonoBehaviour
         }
 
         //現在殺されている数
-        this.KillTotalCount();
+        int kills = this.KillTotalCount();
+        killsText.text = "kills : " + kills;
+        KillsData.Instance.killCount = kills;
+        //Debug.Log("撃破数にゅ" + KillsData.Instance.killCount);
+
 
     }
     // Update is called once per frame-------------------------------------
@@ -84,6 +95,11 @@ public class EnemyManager : MonoBehaviour
     {
         for (int i = 0; i < num; i++)
         {
+            ////生成する位置のvector3 positionをランダムになるように設定する。
+            //Vector3 enemyInstansPos = new Vector3(i*2.0f,0,20.0f+i);
+            //GameObject enemy = (GameObject)Instantiate(enemyPrefab, enemyInstansPos, Quaternion.identity);
+
+
             //生成する位置のvector3 positionをランダムになるように設定する。
             Vector3 enemyInstansPos = GetInstantiatePosition(Wall);
             GameObject enemy = (GameObject)Instantiate(enemyPrefab, enemyInstansPos, Quaternion.identity);
@@ -115,7 +131,7 @@ public class EnemyManager : MonoBehaviour
     // enemyがプレイヤーに撃破された数----------------------------------------
     // 撃破された総数
     public int KillTotalCount() {
-        Debug.Log("殺されてる数" + deathTotal);
+        //Debug.Log("殺されてる数" + deathTotal);
         return deathTotal;
     }
     // 撃破された時にカウントする
