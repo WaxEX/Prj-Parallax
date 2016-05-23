@@ -5,17 +5,17 @@ using UnityEngine.UI;
 public class EnemyManager : MonoBehaviour
 {
     // enemyの初期総数。
-    const int CONST_ENEMY_DEFAULT_NUM = 20;
+    const int CONST_ENEMY_DEFAULT_NUM = 10;
     // enemyを生成するべき境界値の設定
-    const int CONST_ENEMY_LOWER_NUM = 15;
+    const int CONST_ENEMY_LOWER_NUM = 5;
     // 境界値になったら生成すべきenemyの個体数設定
-    const int CONST_ENEMY_POP_NUM = 20;
+    const int CONST_ENEMY_POP_NUM = 10;
 
     // enemy生成時のZ軸方向の範囲
     // Unityのワールド座標Z+方向の範囲
     const float FRONT_Z = 50.0f;
-    // Unityのワールド座標Z-方向の範囲
-    const float BACK_Z = 10.0f;
+    //// Unityのワールド座標Z-方向の範囲
+    //const float BACK_Z = 30.0f;
 
     // エネミー総数　初期化
     int enemyTotalNumber = CONST_ENEMY_DEFAULT_NUM;
@@ -39,9 +39,7 @@ public class EnemyManager : MonoBehaviour
         //enemyがプレイヤーに撃破された数　初期化
         deathTotal = 0;
         this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
-
-        //Debug.Log("撃破数にゃ" + KillsData.Instance.killCount);
-
+        //this.InstantiateEnemy(1);
     }
     // Use this for initialization-----------------------------------------
 
@@ -60,9 +58,6 @@ public class EnemyManager : MonoBehaviour
         int kills = this.KillTotalCount();
         killsText.text = "kills : " + kills;
         KillsData.Instance.killCount = kills;
-        //Debug.Log("撃破数にゅ" + KillsData.Instance.killCount);
-
-
     }
     // Update is called once per frame-------------------------------------
 
@@ -80,12 +75,13 @@ public class EnemyManager : MonoBehaviour
         float downPosY = objPos.y - (objSize.y / 2);
         //各座標をランダムに取得
         float x = Random.Range(leftPosX, rightPosX);
-        float y = Random.Range(topPosY, downPosY);
-        float z = Random.Range(BACK_Z, FRONT_Z);
+        float y = Random.Range(topPosY, downPosY+2.0f);
+        //float z = Random.Range(BACK_Z, FRONT_Z);
 
         //生成位置を返す。
         //return new Vector3();
-        return new Vector3(x, y, z);
+        return new Vector3(x, y, 0);
+        //return new Vector3(x, y, z);
     }
     // enemyのPosition決定処理----------------------------------------------
 
@@ -95,13 +91,9 @@ public class EnemyManager : MonoBehaviour
     {
         for (int i = 0; i < num; i++)
         {
-            ////生成する位置のvector3 positionをランダムになるように設定する。
-            //Vector3 enemyInstansPos = new Vector3(i*2.0f,0,20.0f+i);
-            //GameObject enemy = (GameObject)Instantiate(enemyPrefab, enemyInstansPos, Quaternion.identity);
-
-
             //生成する位置のvector3 positionをランダムになるように設定する。
             Vector3 enemyInstansPos = GetInstantiatePosition(Wall);
+            enemyInstansPos.z = FRONT_Z+(i*10);
             GameObject enemy = (GameObject)Instantiate(enemyPrefab, enemyInstansPos, Quaternion.identity);
             //生成したenemyオブジェクトの親を設定
             enemy.transform.parent = EnemyParent.transform;

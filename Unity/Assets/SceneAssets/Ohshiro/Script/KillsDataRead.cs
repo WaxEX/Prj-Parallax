@@ -10,9 +10,7 @@ public class KillsDataRead : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //Debug.Log("撃破数にょーーーー" + KillsData.Instance.killCount);
         killsText.text = "kills : " + KillsData.Instance.killCount;
-
     }
 
     // Update is called once per frame

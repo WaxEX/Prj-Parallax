@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(Renderer))]
 public class Enemy : MonoBehaviour
 {
+    private Renderer _renderer;
+
     // 敵の全体数を管理しているオブジェクト
     private GameObject enemyManager;
     EnemyManager eManager;
@@ -10,16 +13,30 @@ public class Enemy : MonoBehaviour
     // プレイヤーのライフ管理しているオブジェクト
     private GameObject playerObj;
     Player playerScript;
-    
+
+    //防御壁オブジェクト
+    private GameObject wallObj;    
+
     //変数宣言
     Vector3 position;
-    float speed;
+    float speed = 0.2f;
+
+    //点滅フラグ(壁との距離が近づくとtrueになる)
+    bool isBlinker = false;
+    //点滅フラグをオンの距離
+    float onBlinkerDistance = 40.0f;
+    //スピードを変える距離
+    float onBlinkerDistanceMiddle = 25.0f;
+    float onBlinkerDistanceEnd = 15.0f;
+    //点滅のスピード(3段階)
+    float blinkerSpeedFirst = 1.0f;
+    float blinkerSpeedMiddle = 0.25f;
+    float blinkerSpeedEnd = 0.01f;
 
     // Use this for initialization
     void Start()
     {
-        //変数初期化
-        speed = 0.1f;
+        _renderer = GetComponent<Renderer>();
 
         //敵の全体数を管理しているオブジェクトを探す。
         enemyManager = GameObject.Find("EnemyManager");
@@ -30,6 +47,9 @@ public class Enemy : MonoBehaviour
         playerObj = GameObject.Find("Player");
         playerScript = playerObj.GetComponent<Player>();
 
+        //防御壁を探す。
+        wallObj = GameObject.Find("InvisibilityWall");
+
     }
 
     // Update is called once per frame
@@ -37,14 +57,43 @@ public class Enemy : MonoBehaviour
     {
         //enemy進行方向　マイナスＺ軸方向。等速。
         transform.position += new Vector3(0, 0, -speed);
+
+        // 敵が点滅していない状態
+        if (isBlinker == false)
+        {
+            //敵と壁との距離が20以下になると点滅開始
+            if (DistanceBetweenTheWall() < onBlinkerDistance)
+            {
+                StartCoroutine(BlinkerCoroutine());
+                isBlinker = true;
+            }
+        }
     }
 
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    Destroy(gameObject);
-    //}
+
+    // 壁との距離
+    float DistanceBetweenTheWall() {
+        //エネミーの中心点
+        Vector3 enemyPos = transform.position;
+        //壁の中心点
+        Vector3 wallPos = wallObj.transform.position;
+
+        //エネミーから直線状に当たる壁の位置
+        Vector3 distanceWallPos;
+        distanceWallPos.x = wallPos.x + enemyPos.x;
+        distanceWallPos.y = wallPos.y + enemyPos.y;
+        distanceWallPos.z = wallPos.z;
+        //エネミーと壁との距離
+        float diff = Vector3.Distance(enemyPos, distanceWallPos);
+        return diff;
+    }
 
     // Enemy delete
+    void Death()
+    {
+        eManager.enemyDecrease();
+        Destroy(gameObject);
+    }
     // 壁にぶつかった時の死
     public void EnemyDelete()
     {
@@ -58,8 +107,37 @@ public class Enemy : MonoBehaviour
         this.Death();
     }
 
-    void Death() {
-        eManager.enemyDecrease();
-        Destroy(gameObject);
+
+    //点滅処理
+    IEnumerator BlinkerCoroutine()
+    {
+        //変更前のマテリアルのコピーを保存
+        var originalMaterial = new Material(_renderer.material);
+        float blinkerSpeed = blinkerSpeedFirst;
+ 
+
+        for (;;)
+        {
+
+            _renderer.material.EnableKeyword("_EMISSION"); //キーワードの有効化を忘れずに
+            _renderer.material.SetColor("_EmissionColor", new Color(1, 0.92f, 0.016f, 1)); //黄色点滅 
+
+            if (DistanceBetweenTheWall() < onBlinkerDistanceEnd)
+            {
+                blinkerSpeed = blinkerSpeedEnd;
+                _renderer.material.SetColor("_EmissionColor", new Color(1, 0, 0, 1)); //赤色点滅 
+            }
+
+            if (DistanceBetweenTheWall() < onBlinkerDistanceMiddle)
+            {
+                blinkerSpeed = blinkerSpeedMiddle;
+            }
+
+
+
+            yield return new WaitForSeconds(blinkerSpeed);//任意の秒間明るく発色
+            _renderer.material = originalMaterial; //元に戻す
+            yield return new WaitForSeconds(blinkerSpeed);//任意の秒間元の色に発色
+        }
     }
 }
