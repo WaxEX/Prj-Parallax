@@ -14,12 +14,21 @@ public class Player : MonoBehaviour {
     public GameObject lifePanel;
     LifeIconPanel lifeIconPanelScript;
 
+    // MainCameraオブジェクト
+    GameObject mCamera;
+    UnityStandardAssets.ImageEffects.NoiseAndScratches noiseScript;
+
 
     // Use this for initialization----------------------------------
     void Start () {
         //プレイヤーのLifeを管理しているオブジェクトを探す。
         lifePanel = GameObject.Find("LifeIconPanel");
         lifeIconPanelScript = lifePanel.GetComponent<LifeIconPanel>();
+
+        //MainCamera取得。WindowCameraコンポーネント取得。
+        mCamera = GameObject.Find("Main Camera");
+        noiseScript = mCamera.GetComponent<UnityStandardAssets.ImageEffects.NoiseAndScratches>();
+
     }
     // Use this for initialization----------------------------------
 
@@ -54,11 +63,24 @@ public class Player : MonoBehaviour {
     public void PlayerDecrease()
     {
         if (playerTotalLifeNumber > 0) {
+            //ダメージと同時にノイズ
+            StartCoroutine(NoiseCoroutine());
+            //ライフの減少
             playerTotalLifeNumber--;
             lifeIconPanelScript.UpdateLife(playerTotalLifeNumber);
         }
     }
     // PlayerのLife総数管理------------------------------------------
+
+    //ノイズを走らせる
+    IEnumerator NoiseCoroutine()
+    {
+        noiseScript.enabled = true;
+        yield return new WaitForSeconds(0.25f); //0.5秒後にノイズOFF
+        noiseScript.enabled = false;
+    }
+
+
 
     // ゲームオーバー画面へ遷移
     public void toGameOver()
