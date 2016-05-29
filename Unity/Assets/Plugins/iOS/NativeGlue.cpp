@@ -112,8 +112,6 @@ void _update()
 	
 	
 	//scaleの値を用いて元画像を縮小
-	double scale = 4.0;
-	
 	
 	// グレースケール画像に変換
 	cv::cvtColor(img, gray, CV_BGR2GRAY);
@@ -130,20 +128,25 @@ void _update()
 	// 座標代入
 	if( !faces.empty() ) {
 		auto f = faces.front();      //  最初の要素
-		facePos[0] = cv::saturate_cast<int>((f.x + f.width*0.5)*DETECT_SCALE);
-		facePos[1] = cv::saturate_cast<int>((f.y + f.height*0.5)*DETECT_SCALE);
-	}
-	
-	
-	// 結果の描画
-	if( !faces.empty() ) {
-		auto f = faces.front();      //  最初の要素
-		cv::Point center(getX_(), getY_());
-		int radius = cv::saturate_cast<int>((f.width + f.height)*0.25*DETECT_SCALE);
 		
+		int x = cv::saturate_cast<int>((f.x + f.width*0.5)*DETECT_SCALE);
+		int y = cv::saturate_cast<int>((f.y + f.height*0.5)*DETECT_SCALE);
+		
+		// 中心からの差分
+		facePos[0] = x - cv::saturate_cast<int>(img.cols/2);
+		facePos[1] = y - cv::saturate_cast<int>(img.rows/2);
+		
+		
+		//facePos[0] = cv::saturate_cast<int>((f.x + f.width*0.5)*DETECT_SCALE);
+		//facePos[1] = cv::saturate_cast<int>((f.y + f.height*0.5)*DETECT_SCALE);
+		
+		
+		// 結果の描画
+		cv::Point center(x, y);
+		int radius = cv::saturate_cast<int>((f.width + f.height)*0.25*DETECT_SCALE);
 		cv::circle( gray, center, radius, cv::Scalar(255,255,255), 3, 8, 0 );
+		
 	}
-	
 	
 	
 	facePos[2] = rand()%10;

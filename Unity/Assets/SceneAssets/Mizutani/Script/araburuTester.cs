@@ -21,7 +21,7 @@ public class araburuTester : MonoBehaviour {
 		
 		transform.position = dm.facePos * 0.01f;
 
-		Debug.Log(dm.facePos);
+		//Debug.Log(dm.facePos);
 	}
 
 

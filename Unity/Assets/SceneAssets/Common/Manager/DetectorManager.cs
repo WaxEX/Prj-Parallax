@@ -21,8 +21,6 @@ namespace Manager
 		public int height{get{return HEIGHT;}}
 
 		private Texture2D texture_;
-		public Texture2D cameraImage{get { return texture_;}}
-
 
 		// シングルトン実装
 		private static DetectorManager instance = new DetectorManager();
@@ -60,9 +58,6 @@ namespace Manager
 			CvRapper_iOS.setTextureInfo (true, texture_.width, texture_.height);
 
 
-
-
-
 			// 初期座標をセット
 			this._facePos    = new Vector3(0,0,0);
 
@@ -77,19 +72,31 @@ namespace Manager
 			while (this.isRun) {
 
 				// カメラ見つかんない
-				if(!CvRapper_iOS.isOpen){continue;}
+				if(!CvRapper_iOS.isOpen){
+					Debug.Log("CAMERA NOT FOUND");
+					continue;
+				}
 
 				CvRapper_iOS.update();
 
 				Vector3 pos = CvRapper_iOS.getPos();
+
+
 				this._facePos = pos;
 
 				// デバッグ用
 				CvRapper_iOS.getTexture(pixels_ptr_);
-				texture_.SetPixels32(pixels_);
-				texture_.Apply();
+
 			}
 		}
+
+		public void drawTexture(ref Texture2D texture){
+			texture.SetPixels32(pixels_);
+			texture.Apply();
+		}
+
+
+
 
 		public void Dispose(){
 			Debug.Log("[Disposed] Thread is stop.");
@@ -182,9 +189,18 @@ namespace Manager
 					// if DEBUG
 					using (var cvtImage = image.CvtColor (ColorConversion.BgrToRgb)) {
 						this._image = cvtImage.ImEncode (".bmp");
+						texture_.LoadRawTextureData (this._image);
+
+
 					}
 				}
 			}
+		}
+
+
+		public void drawTexture(ref Texture2D texture){
+			texture.LoadRawTextureData (this._image);
+			texture.Apply();
 		}
 			
 		public void Dispose(){
