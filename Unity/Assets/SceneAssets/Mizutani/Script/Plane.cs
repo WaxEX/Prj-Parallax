@@ -23,7 +23,9 @@ public class Plane : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		myTex.LoadRawTextureData (dm.image);
+		myTex = dm.cameraImage;
+
+		//myTex.LoadRawTextureData (dm.image);
 		myTex.Apply();
 	}
 		

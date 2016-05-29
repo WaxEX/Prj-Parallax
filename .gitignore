@@ -32,5 +32,8 @@ Thumbs.db
 *.html
 *.unity3d
 
+# output binary
+/*/bin/
+
 # use in assets
 !*.obj
