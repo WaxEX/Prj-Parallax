@@ -14,7 +14,10 @@ namespace Manager
 		// 定義ファイルの場所
 		private string CASCADE_FILEPATH = Application.streamingAssetsPath+"/haarcascade_frontalface_alt.xml";
 
+
 		//テクスチャサイズ
+		private const int WIDTH  = 320;
+		private const int HEIGHT = 180;
 		public int width {get{return WIDTH;}}
 		public int height{get{return HEIGHT;}}
 
@@ -29,12 +32,8 @@ namespace Manager
 		private bool isRun = false;
 
 		// 外部公開用のメンバ変数
-		//private int _status = 0;
 		public Vector3 _facePos;
 		public Vector3 facePos {get{return _facePos;}}
-
-
-
 
 	#if UNITY_IOS
 
@@ -119,10 +118,6 @@ namespace Manager
 		private byte[] _image = new byte[WIDTH*HEIGHT*3];
 		public  byte[] image{get{return _image;}}
 
-		////スクリーンサイズ
-		private const int WIDTH  = 640;
-		private const int HEIGHT = 480;
-
 
 
 		// ビデオファイルやカメラからキャプチャを行う
@@ -131,9 +126,6 @@ namespace Manager
 
 		//顏検出クラス
 		CascadeClassifier cascade;
-
-
-
 
 		private DetectorManager() {
 			// 初期座標をセット
@@ -145,7 +137,7 @@ namespace Manager
 			video.Set(CaptureProperty.FrameHeight, HEIGHT);
 
 			// 顔検出器の作成
-			cascade = new CascadeClassifier( Application.dataPath + CASCADE_FILEPATH);
+			cascade = new CascadeClassifier(CASCADE_FILEPATH);
 			
 			// スレッド開始
 			this.thread = new Thread(new ThreadStart(updatePosition));
@@ -167,20 +159,15 @@ namespace Manager
 					// 顔を検出する
 					var faces = cascade.DetectMultiScale (image);
 
-				
 					if (faces.Length <= 0) {
 						// 検出出来なかった
-						//this._status = 1;
 					} else {
-						//this._status = 0;
-
 						var face = faces[0];
 
 						// 中心の座標を計算する(一旦Zは考慮しない)
 						var x = face.TopLeft.X + (face.Size.Width / 2) - WIDTH / 2;
 						var y = face.TopLeft.Y + (face.Size.Height / 2) - HEIGHT / 2;
 
-						//this._status = 0;
 						this._facePos = new Vector3 (-x, -y, this._facePos.z);    // 座標系変換のため、-が付いてる
 
 						// if DEBUG 顔の矩形を描画する
@@ -190,9 +177,6 @@ namespace Manager
 					// if DEBUG
 					using (var cvtImage = image.CvtColor (ColorConversion.BgrToRgb)) {
 						this._image = cvtImage.ImEncode (".bmp");
-						texture_.LoadRawTextureData (this._image);
-
-
 					}
 				}
 			}

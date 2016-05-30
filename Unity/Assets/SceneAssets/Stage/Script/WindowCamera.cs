@@ -4,6 +4,8 @@ using System;
 using OpenCvSharp;
 using OpenCvSharp.CPlusPlus;
 
+using Manager;
+
 // カメラにアタッチして使用
 [RequireComponent(typeof(Camera))]
 //[ExecuteInEditMode]
@@ -16,7 +18,7 @@ public class WindowCamera : MonoBehaviour
     public Vector3 WINDOW_INIT_POS = new Vector3(0, 0, 50.0F);
 
     [SerializeField, TooltipAttribute("長さの単位比率（外部入力との単位の差分を吸収）")]
-    public float UNIT_RATIO = 0.1f;
+    public float UNIT_RATIO = 0.01f;
 
     // 自身のカメラコンポーネントの参照を保持しておく為のモノ
     private Camera thisCamera;
@@ -30,6 +32,10 @@ public class WindowCamera : MonoBehaviour
 
     // 顔検出器
     private CameraDetector cameraDetector = null;
+
+	// 非同期で顔認識するやつ。CameraDetectorを置き換え
+	private DetectorManager dm = null;
+
 
     private float lastUpdateTime = -1000.0f;
 
@@ -45,7 +51,10 @@ public class WindowCamera : MonoBehaviour
         window.Itit(WINDOW_HEIGHT, WINDOW_HEIGHT * thisCamera.aspect, headPos);
 
         // の初期化
-        cameraDetector = new CameraDetector(headPos / UNIT_RATIO);
+        //cameraDetector = new CameraDetector(headPos / UNIT_RATIO);
+
+		// インスタンス取得
+		dm = DetectorManager.Instance;
     }
 
 
@@ -62,7 +71,8 @@ public class WindowCamera : MonoBehaviour
         {
             // 顔座標の取得を試みる→取れないときは例外を投げる
             //Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;//顔認識で動かすよう
-            Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
+            //Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
+			Vector3 newPos = dm.facePos * UNIT_RATIO; // 顔認識非同期版
 
             // 顔座標が指定した移動座標限界値を超えた場合は、newPosは限界値の状態で返す。
             newPos = positionLimit(newPos);
@@ -98,11 +108,20 @@ public class WindowCamera : MonoBehaviour
 
     void OnApplicationQuit()
     {
+		
         if (cameraDetector != null)
         {
             cameraDetector.Dispose();
             cameraDetector = null;
         }
+
+
+		if (dm != null){
+			dm.Dispose();
+			dm = null;
+		}
+
+
     }
 
 
@@ -255,9 +274,9 @@ public class WindowCamera : MonoBehaviour
     // ===================================
     private Vector3 getHeadPosition()
     {
-        float x = 2.0F * Input.GetAxis("Mouse X");
-        float y = 2.0F * Input.GetAxis("Mouse Y");
-        float z = 20.0F * Input.GetAxis("Mouse ScrollWheel");
+        float x = 20.0F * Input.GetAxis("Mouse X");
+        float y = 20.0F * Input.GetAxis("Mouse Y");
+        float z = 200.0F * Input.GetAxis("Mouse ScrollWheel");
 
         return headPos + new Vector3(x, y, z);
     }
