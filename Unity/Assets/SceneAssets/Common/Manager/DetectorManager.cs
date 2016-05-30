@@ -36,10 +36,6 @@ namespace Manager
 		public Vector3 facePos {get{return _facePos;}}
 
 	#if UNITY_IOS
-
-   		private const int WIDTH  = 320;
-		private const int HEIGHT = 180;
-
 		private IntPtr camera_;
 		private Color32[] pixels_;
 		private GCHandle pixels_handle_;
@@ -81,8 +77,8 @@ namespace Manager
 
 				Vector3 pos = CvRapper_iOS.getPos();
 
-
-				this._facePos = pos;
+				// 座標の関係上、負号をつける＆Zは無視
+				this._facePos = new Vector3 (-pos.x, -pos.y, this._facePos.z);
 
 				// デバッグ用
 				CvRapper_iOS.getTexture(pixels_ptr_);
