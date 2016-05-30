@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        //自分自身の描画処理を取得
         _renderer = GetComponent<Renderer>();
 
         //敵の全体数を管理しているオブジェクトを探す。
@@ -114,30 +115,32 @@ public class Enemy : MonoBehaviour
         //変更前のマテリアルのコピーを保存
         var originalMaterial = new Material(_renderer.material);
         float blinkerSpeed = blinkerSpeedFirst;
- 
+        _renderer.material.EnableKeyword("_EMISSION"); //キーワードの有効化を忘れずに
 
         for (;;)
         {
-
-            _renderer.material.EnableKeyword("_EMISSION"); //キーワードの有効化を忘れずに
-            _renderer.material.SetColor("_EmissionColor", new Color(1, 0.92f, 0.016f, 1)); //黄色点滅 
-
+            //壁にすごく近い
             if (DistanceBetweenTheWall() < onBlinkerDistanceEnd)
             {
                 blinkerSpeed = blinkerSpeedEnd;
-                _renderer.material.SetColor("_EmissionColor", new Color(1, 0, 0, 1)); //赤色点滅 
+                originalMaterial.color = new Color(1, 0.05f, 0.05f, 1);//赤色
+                _renderer.material.SetColor("_EmissionColor", new Color(1, 0, 0, 1)); //赤色点滅
             }
-
+            //壁にまぁまぁ近い
             if (DistanceBetweenTheWall() < onBlinkerDistanceMiddle)
             {
                 blinkerSpeed = blinkerSpeedMiddle;
+                originalMaterial.color = new Color(1, 0.92f, 0.016f, 1);//黄色
             }
-
-
-
+            //壁にほどほどに近い
+            if (DistanceBetweenTheWall() < onBlinkerDistance)
+            {
+                originalMaterial.color = new Color(1, 0.92f, 0.016f, 1);//緑色
+            }
             yield return new WaitForSeconds(blinkerSpeed);//任意の秒間明るく発色
             _renderer.material = originalMaterial; //元に戻す
             yield return new WaitForSeconds(blinkerSpeed);//任意の秒間元の色に発色
         }
     }
+
 }

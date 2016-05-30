@@ -1,33 +1,42 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 
 public class Player : MonoBehaviour {
     // Player Life
-    const int CONST_PLAYER_DEFAULT_LIFE = 5;
+    const int CONST_PLAYER_DEFAULT_LIFE = 100;
     // PlayerのLife総数 初期化
     int playerTotalLifeNumber = CONST_PLAYER_DEFAULT_LIFE;
     // Player　生きてるか死んでるか
     private bool isPlayerLife = true;
 
-    // Lifeオブジェクトを管理しているパネルを参照
-    public GameObject lifePanel;
-    LifeIconPanel lifeIconPanelScript;
+    //// Lifeオブジェクトを管理しているパネルを参照
+    //public GameObject lifePanel;
+    //LifeIconPanel lifeIconPanelScript;
 
     // MainCameraオブジェクト
     GameObject mCamera;
     UnityStandardAssets.ImageEffects.NoiseAndScratches noiseScript;
 
+    // ライフテキストのオブジェクト
+    public Text LifeText;
+
 
     // Use this for initialization----------------------------------
     void Start () {
-        //プレイヤーのLifeを管理しているオブジェクトを探す。
-        lifePanel = GameObject.Find("LifeIconPanel");
-        lifeIconPanelScript = lifePanel.GetComponent<LifeIconPanel>();
+        ////プレイヤーのLifeを管理しているオブジェクトを探す。
+        //lifePanel = GameObject.Find("LifeIconPanel");
+        //lifeIconPanelScript = lifePanel.GetComponent<LifeIconPanel>();
 
         //MainCamera取得。WindowCameraコンポーネント取得。
         mCamera = GameObject.Find("Main Camera");
         noiseScript = mCamera.GetComponent<UnityStandardAssets.ImageEffects.NoiseAndScratches>();
+
+        //プレイヤーライフ
+        LifeText.text = "LIFE : " + CONST_PLAYER_DEFAULT_LIFE;
+
 
     }
     // Use this for initialization----------------------------------
@@ -36,17 +45,21 @@ public class Player : MonoBehaviour {
 
     // Update is called once per frame------------------------------
     void Update () {
+
         //生命力がない場合は処理しない
         if (isPlayerLife == false) { return; }
 
-        Debug.Log("生命力:" + PlayerTotalLifeNumber());
+        //Debug.Log("生命力:" + PlayerTotalLifeNumber());
         if (PlayerTotalLifeNumber() <= 0)
         {
             isPlayerLife = false;
-            Debug.Log("生命力なし");
+            //Debug.Log("生命力なし");
             //ゲームオーバー画面へ遷移
             toGameOver();
         }
+
+        //プレイヤーライフ
+        LifeText.text = "LIFE : " + playerTotalLifeNumber;
 
     }
     // Update is called once per frame------------------------------
@@ -67,7 +80,7 @@ public class Player : MonoBehaviour {
             StartCoroutine(NoiseCoroutine());
             //ライフの減少
             playerTotalLifeNumber--;
-            lifeIconPanelScript.UpdateLife(playerTotalLifeNumber);
+          //lifeIconPanelScript.UpdateLife(playerTotalLifeNumber);
         }
     }
     // PlayerのLife総数管理------------------------------------------

@@ -63,6 +63,10 @@ public class WindowCamera : MonoBehaviour
             // 顔座標の取得を試みる→取れないときは例外を投げる
             //Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;//顔認識で動かすよう
             Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
+
+            // 顔座標が指定した移動座標限界値を超えた場合は、newPosは限界値の状態で返す。
+            newPos = positionLimit(newPos);
+
             Vector3 diff = newPos - headPos;
 
             // 誤検知をスルーするための小細工
@@ -278,7 +282,44 @@ public class WindowCamera : MonoBehaviour
     // 光線を出すときにプレイヤーが必要とする情報----------------------------------------
 
 
-
+    // 視角範囲制限-------------------------------------------------------------------
+    // 視角範囲を制限した座標を返す。
+    Vector3 positionLimit(Vector3 pos)
+    {
+        Vector3 returnPosision;
+        returnPosision.x = PosX(pos.x);
+        returnPosision.y = PosY(pos.y);
+        returnPosision.z = PosY(pos.z);
+        return returnPosision;
+    }
+    // X座標の移動量制限
+    float PosX(float x) {
+        if (x > VirtualWindowCenterX())
+        {
+            if (x >= WINDOW_HEIGHT * thisCamera.aspect) return WINDOW_HEIGHT * thisCamera.aspect;
+        }
+        else if (x < VirtualWindowCenterX())
+        {
+            if (x <= -WINDOW_HEIGHT * thisCamera.aspect) return -WINDOW_HEIGHT * thisCamera.aspect;
+        }
+        return x;
+    }
+    // 座標の移動量制限
+    // todo:視角範囲を制限。数値の調整
+    float PosY(float y)
+    {
+        if (y > VirtualWindowCenterY())
+        {
+            if (y >= WINDOW_HEIGHT/2.2f) return WINDOW_HEIGHT/2.2f;
+        }
+        else if (y < VirtualWindowCenterY())
+        {
+            //if (y <= -WINDOW_HEIGHT) return -WINDOW_HEIGHT;
+            if (y <= -3.0f) return -3.0f;
+        }
+        return y;
+    }
+    // 視角範囲制限-------------------------------------------------------------------
 
 #if UNITY_EDITOR
     // 開発用　シーンビューで視野を描画する

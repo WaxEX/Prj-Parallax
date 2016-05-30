@@ -40,6 +40,9 @@ public class EnemyManager : MonoBehaviour
         deathTotal = 0;
         this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
         //this.InstantiateEnemy(1);
+
+        killsText.text = "kills : 0";
+
     }
     // Use this for initialization-----------------------------------------
 

@@ -15,8 +15,6 @@ namespace Manager
 		private string CASCADE_FILEPATH = Application.streamingAssetsPath+"/haarcascade_frontalface_alt.xml";
 
 		//テクスチャサイズ
-		private const int WIDTH  = 320;
-		private const int HEIGHT = 180;
 		public int width {get{return WIDTH;}}
 		public int height{get{return HEIGHT;}}
 
@@ -39,6 +37,9 @@ namespace Manager
 
 
 	#if UNITY_IOS
+
+   		private const int WIDTH  = 320;
+		private const int HEIGHT = 180;
 
 		private IntPtr camera_;
 		private Color32[] pixels_;
@@ -118,7 +119,7 @@ namespace Manager
 		private byte[] _image = new byte[WIDTH*HEIGHT*3];
 		public  byte[] image{get{return _image;}}
 
-		//スクリーンサイズ
+		////スクリーンサイズ
 		private const int WIDTH  = 640;
 		private const int HEIGHT = 480;
 

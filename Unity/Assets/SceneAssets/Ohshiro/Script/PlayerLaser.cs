@@ -27,8 +27,6 @@ public class PlayerLaser : MonoBehaviour {
         lineRenderer.SetVertexCount(2);
         //LineRendererの太さ(始点と終点で変更できる)
         lineRenderer.SetWidth(laserStartWidth, laserEndWidth);
-        ////LineRendererの色(始点は緑、終点は緑)
-        //lineRenderer.SetColors(Color.blue, Color.blue);
 
         //MainCamera取得。WindowCameraコンポーネント取得。
         mCamera = GameObject.Find("Main Camera");
