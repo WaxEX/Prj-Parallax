@@ -38,8 +38,8 @@ public class EnemyManager : MonoBehaviour
         KillsData.Instance.killCount = 0;
         //enemyがプレイヤーに撃破された数　初期化
         deathTotal = 0;
-        //this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
-        this.InstantiateEnemy(1);
+        this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
+        //this.InstantiateEnemy(1);
 
         killsText.text = "kills : 0";
 
@@ -82,8 +82,8 @@ public class EnemyManager : MonoBehaviour
         float z = Random.Range(BACK_Z, FRONT_Z);
 
         //生成位置を返す。
-        //return new Vector3(x, y, z);
-        return new Vector3(0, 0, z);
+        return new Vector3(x, y, z);
+        //return new Vector3(0, 0, z);
     }
     // enemyのPosition決定処理----------------------------------------------
 
