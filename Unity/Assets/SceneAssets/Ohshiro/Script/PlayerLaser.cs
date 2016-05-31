@@ -5,7 +5,7 @@ public class PlayerLaser : MonoBehaviour {
     // プレイヤーから射出されるレーザ
     public GameObject laserObject;
     // 射程
-    public float laserRange = 20;
+    public float laserRange = 100;
     // 線の太さ
     public float laserEndWidth = 1;
     public float laserStartWidth = 0.1f;
@@ -77,12 +77,12 @@ public class PlayerLaser : MonoBehaviour {
         Vector3 cameraCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
         //Raycastで飛ばす光線を作成(Mainカメラの中央部分から飛ばす)
         Ray ray = Camera.main.ScreenPointToRay(cameraCenter);
-        Debug.DrawRay(transform.position, ray.direction*laserRange);
+        //Debug.DrawRay(transform.position, ray.direction*laserRange);
 
         // 光線と物体の衝突判定
         RaycastHit rayHit;
         //if (Physics.Raycast(ray, out rayHit, laserRange))
-        if (Physics.Raycast(transform.position, ray.direction * laserRange,out rayHit,laserRange))
+        if (Physics.Raycast(transform.position, ray.direction * laserRange,out rayHit,laserRange*3.0f))
         {
             // 敵に光線が衝突している場合　敵に死刑宣告
             if (rayHit.collider.gameObject.CompareTag("Enemy"))
@@ -91,7 +91,7 @@ public class PlayerLaser : MonoBehaviour {
                 rayHit.collider.gameObject.SendMessage("EnemyDeleteByLaser");
             }
         }
-        SetLaser(transform.position, ray.direction * laserRange);
+        SetLaser(transform.position, (ray.direction * laserRange)*1.4f);
     }
     //光線射出-------------------------------------------------------------------------
 

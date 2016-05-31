@@ -71,8 +71,8 @@ public class WindowCamera : MonoBehaviour
         {
             // 顔座標の取得を試みる→取れないときは例外を投げる
             //Vector3 newPos = cameraDetector.getFacePos() * UNIT_RATIO;//顔認識で動かすよう
-            //Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
-			Vector3 newPos = dm.facePos * UNIT_RATIO; // 顔認識非同期版
+            Vector3 newPos = getHeadPosition() * UNIT_RATIO;//マウスで動かす用
+			//Vector3 newPos = dm.facePos * UNIT_RATIO; // 顔認識非同期版
 
             // 顔座標が指定した移動座標限界値を超えた場合は、newPosは限界値の状態で返す。
             newPos = positionLimit(newPos);

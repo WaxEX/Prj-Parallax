@@ -13,9 +13,9 @@ public class EnemyManager : MonoBehaviour
 
     // enemy生成時のZ軸方向の範囲
     // Unityのワールド座標Z+方向の範囲
-    const float FRONT_Z = 50.0f;
+    const float FRONT_Z = 210.0f;
     //// Unityのワールド座標Z-方向の範囲
-    //const float BACK_Z = 30.0f;
+    const float BACK_Z = 150.0f;
 
     // エネミー総数　初期化
     int enemyTotalNumber = CONST_ENEMY_DEFAULT_NUM;
@@ -38,7 +38,8 @@ public class EnemyManager : MonoBehaviour
         KillsData.Instance.killCount = 0;
         //enemyがプレイヤーに撃破された数　初期化
         deathTotal = 0;
-        this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
+        //this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
+        this.InstantiateEnemy(1);
 
         killsText.text = "kills : 0";
 
@@ -78,10 +79,11 @@ public class EnemyManager : MonoBehaviour
         //各座標をランダムに取得
         float x = Random.Range(leftPosX, rightPosX);
         float y = Random.Range(topPosY, downPosY);
-        //float z = Random.Range(BACK_Z, FRONT_Z);
+        float z = Random.Range(BACK_Z, FRONT_Z);
 
         //生成位置を返す。
-        return new Vector3(x, y, 0);
+        //return new Vector3(x, y, z);
+        return new Vector3(0, 0, z);
     }
     // enemyのPosition決定処理----------------------------------------------
 
@@ -93,7 +95,7 @@ public class EnemyManager : MonoBehaviour
         {
             //生成する位置のvector3 positionをランダムになるように設定する。
             Vector3 enemyInstansPos = GetInstantiatePosition(Wall);
-            enemyInstansPos.z = FRONT_Z+(i*10);
+            //enemyInstansPos.z = FRONT_Z+(i*10);
             GameObject enemy = (GameObject)Instantiate(enemyPrefab, enemyInstansPos, Quaternion.identity);
             //生成したenemyオブジェクトの親を設定
             enemy.transform.parent = EnemyParent.transform;
