@@ -50,7 +50,7 @@ public class WindowCamera : MonoBehaviour
         // 仮想窓の初期化
         window.Itit(WINDOW_HEIGHT, WINDOW_HEIGHT * thisCamera.aspect, headPos);
 
-        // の初期化
+        // 初期化
         //cameraDetector = new CameraDetector(headPos / UNIT_RATIO);
 
 		// インスタンス取得
@@ -329,7 +329,8 @@ public class WindowCamera : MonoBehaviour
     {
         if (y > VirtualWindowCenterY())
         {
-            if (y >= WINDOW_HEIGHT/2.2f) return WINDOW_HEIGHT/2.2f;
+            //if (y >= WINDOW_HEIGHT/2.5f) return WINDOW_HEIGHT/2.5f;
+            if (y >= 6.0f) return 6.0f;
         }
         else if (y < VirtualWindowCenterY())
         {

@@ -15,11 +15,12 @@ public class Enemy : MonoBehaviour
     Player playerScript;
 
     //防御壁オブジェクト
-    private GameObject wallObj;    
+    private GameObject wallObj;
 
     //変数宣言
     Vector3 position;
-    float speed = 0.2f;
+    float speed;
+    float rotSpeed;
 
     //点滅フラグ(壁との距離が近づくとtrueになる)
     bool isBlinker = false;
@@ -32,6 +33,10 @@ public class Enemy : MonoBehaviour
     float blinkerSpeedFirst = 1.0f;
     float blinkerSpeedMiddle = 0.25f;
     float blinkerSpeedEnd = 0.01f;
+
+    //死んだときに使うパーティクル
+    public GameObject flare;
+    public GameObject spark;
 
     // Use this for initialization
     void Start()
@@ -50,14 +55,18 @@ public class Enemy : MonoBehaviour
 
         //防御壁を探す。
         wallObj = GameObject.Find("InvisibilityWall");
-
+        
+        speed = Random.Range(0.1f,0.3f);
+        rotSpeed = Random.Range(0.1f, 0.6f);
     }
 
     // Update is called once per frame
     void Update()
     {
+
         //enemy進行方向　マイナスＺ軸方向。等速。
         transform.position += new Vector3(0, 0, -speed);
+        transform.Rotate(rotSpeed, rotSpeed, 0, 0);
 
         // 敵が点滅していない状態
         if (isBlinker == false)
@@ -69,6 +78,8 @@ public class Enemy : MonoBehaviour
                 isBlinker = true;
             }
         }
+
+
     }
 
 
@@ -104,6 +115,10 @@ public class Enemy : MonoBehaviour
     // 光線に当たった時の死
     public void EnemyDeleteByLaser()
     {
+        //エフェクト生成
+//        Instantiate(flare, transform.position, Quaternion.identity);
+        Instantiate(spark, transform.position, Quaternion.identity);
+
         eManager.KillCount();
         this.Death();
     }

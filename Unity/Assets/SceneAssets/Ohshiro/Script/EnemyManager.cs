@@ -5,11 +5,11 @@ using UnityEngine.UI;
 public class EnemyManager : MonoBehaviour
 {
     // enemyの初期総数。
-    const int CONST_ENEMY_DEFAULT_NUM = 10;
+    const int CONST_ENEMY_DEFAULT_NUM = 50;
     // enemyを生成するべき境界値の設定
-    const int CONST_ENEMY_LOWER_NUM = 5;
+    const int CONST_ENEMY_LOWER_NUM = 30;
     // 境界値になったら生成すべきenemyの個体数設定
-    const int CONST_ENEMY_POP_NUM = 10;
+    const int CONST_ENEMY_POP_NUM = 30;
 
     // enemy生成時のZ軸方向の範囲
     // Unityのワールド座標Z+方向の範囲
@@ -39,7 +39,6 @@ public class EnemyManager : MonoBehaviour
         //enemyがプレイヤーに撃破された数　初期化
         deathTotal = 0;
         this.InstantiateEnemy(CONST_ENEMY_DEFAULT_NUM);
-        //this.InstantiateEnemy(1);
 
         killsText.text = "kills : 0";
 
@@ -78,13 +77,11 @@ public class EnemyManager : MonoBehaviour
         float downPosY = objPos.y - (objSize.y / 2);
         //各座標をランダムに取得
         float x = Random.Range(leftPosX, rightPosX);
-        float y = Random.Range(topPosY, downPosY+2.0f);
+        float y = Random.Range(topPosY, downPosY);
         //float z = Random.Range(BACK_Z, FRONT_Z);
 
         //生成位置を返す。
-        //return new Vector3();
         return new Vector3(x, y, 0);
-        //return new Vector3(x, y, z);
     }
     // enemyのPosition決定処理----------------------------------------------
 
